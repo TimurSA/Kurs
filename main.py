@@ -6,8 +6,6 @@ from Elevator import Elevator, Call
 
 trys = int(input("Сколько зарпосов: "))
 
-elevator1 = Elevator()
-elevator2 = Elevator()
 
 calls = []
 
@@ -31,8 +29,16 @@ for _ in range(trys):
 elevator1 = Elevator(current_floor=random.randint(1, Elevator.MAX_FLOOR))
 elevator2 = Elevator(current_floor=random.randint(1, Elevator.MAX_FLOOR))
 
-choose=input("Выберете алгоримт:\n1. Первый вошел-первый вышел\n2. Ближайший запрос\nВпишите либо 1, либо 2")
+for call in calls:
+    print(call)
+
+app = Call_Manager(elevator1=elevator1, elevator2=elevator2)
+app.add_call(calls)
+
+choose = input("Выберете алгоримт:\n1. Первый вошел-первый вышел\n2. Ближайший запрос\nВпишите либо 1, либо 2")
 if choose.startswith('1'):
-    print(elevator1.add_call_fifo(calls))
+    app.manage_calls_fifo()
 else:
     print(elevator1.add_call_nearest(calls))
+
+
