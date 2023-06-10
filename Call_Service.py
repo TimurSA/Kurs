@@ -19,7 +19,7 @@ class Call_Manager:
     def manage_calls_fifo(self):
         while self.all_calls:
             earliest_call: Call = min(self.all_calls, key=lambda x: x.time)
-            self.all_calls.remove(earliest_call)
+
 
             distance1 = abs(self.elevator1.current_floor - earliest_call.from_floor)
             distance2 = abs(self.elevator2.current_floor - earliest_call.from_floor)

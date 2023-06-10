@@ -62,9 +62,6 @@ class Elevator:
         self.all_time_moved += abs(from_floor - to_floor) * Elevator.TIME_PER_FLOOR
         self.current_floor = to_floor
 
-
-
-
     def move_floor_fifo(self, received_calls: List):
 
         while received_calls:
@@ -105,7 +102,18 @@ class Elevator:
                 if second_earliest_call.to_floor == earliest_call.to_floor:
                     pass
 
-                if earliest_call.to_floor < second_earliest_call.from_floor and earliest_call.to_floor < second_earliest_call.to_floor:
+                if earliest_call.to_floor < second_earliest_call.from_floor and earliest_call.to_floor == second_earliest_call.to_floor:
+                    self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
+                    self.move_floor(self.current_floor, second_earliest_call.from_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.to_floor}')
+                    self.move_floor(self.current_floor, second_earliest_call.to_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.people_in_el -= second_earliest_call.people
+                    self.calls.remove(second_earliest_call)
+                    continue
+
+                if earliest_call.to_floor < second_earliest_call.from_floor and earliest_call.to_floor > second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
@@ -115,7 +123,7 @@ class Elevator:
                     self.people_in_el -= second_earliest_call.people
                     self.calls.remove(second_earliest_call)
 
-                if earliest_call.to_floor < second_earliest_call.from_floor and earliest_call.to_floor > second_earliest_call.to_floor:
+                if earliest_call.to_floor < second_earliest_call.from_floor and earliest_call.to_floor < second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
@@ -139,79 +147,86 @@ class Elevator:
 
     def move_floor_nearest(self, received_calls: List):
 
-            while received_calls:
-                second_nearest_call = None
-                # выбираем вызов, который был сделан раньше всех
-                nearest_call = min(self.calls, key=lambda x: abs(x.from_floor - self.current_floor))
-                # Проверка входных данных
-                if nearest_call.people > Elevator.MAX_PEOPLE:
-                    self.log.append("Перегрузка лифта! Слишком много человек...")
-                    self.calls.remove(nearest_call)
-                    continue
-                if nearest_call.from_floor > Elevator.MAX_FLOOR or nearest_call.from_floor < Elevator.MIN_FLOOR:
-                    self.log.append("Лифт вызывается с не существующего этажа...")
-                    self.calls.remove(nearest_call)
-                    continue
-                if nearest_call.to_floor > Elevator.MAX_FLOOR or nearest_call.to_floor < Elevator.MIN_FLOOR:
-                    self.log.append("Лифт не может отправиться на несуществующий этаж...")
-                    self.calls.remove(nearest_call)
-                    continue
-
+        while received_calls:
+            second_nearest_call = None
+            # выбираем вызов, который был сделан раньше всех
+            nearest_call = min(self.calls, key=lambda x: abs(x.from_floor - self.current_floor))
+            # Проверка входных данных
+            if nearest_call.people > Elevator.MAX_PEOPLE:
+                self.log.append("Перегрузка лифта! Слишком много человек...")
                 self.calls.remove(nearest_call)
-                self.people_in_el += nearest_call.people
+                continue
+            if nearest_call.from_floor > Elevator.MAX_FLOOR or nearest_call.from_floor < Elevator.MIN_FLOOR:
+                self.log.append("Лифт вызывается с не существующего этажа...")
+                self.calls.remove(nearest_call)
+                continue
+            if nearest_call.to_floor > Elevator.MAX_FLOOR or nearest_call.to_floor < Elevator.MIN_FLOOR:
+                self.log.append("Лифт не может отправиться на несуществующий этаж...")
+                self.calls.remove(nearest_call)
+                continue
 
-                if self.calls:
-                    temp_lst = list(filter(lambda x: x.direction == nearest_call.direction, self.calls))
-                    if temp_lst:
-                        second_nearest_call = min(temp_lst, key=lambda x: abs(x.from_floor - self.current_floor))
+            self.calls.remove(nearest_call)
+            self.people_in_el += nearest_call.people
 
-                if abs(self.current_floor - nearest_call.from_floor) == 0:
-                    self.log.append(f'Receiving call from the same floor... Floor ={self.current_floor}')
-                else:
-                    self.log.append(f'Moving from {self.current_floor} to {nearest_call.from_floor}')
-                    self.move_floor(self.current_floor, nearest_call.from_floor)
-                    self.all_time_waited += Elevator.TIME_WAIT
+            if self.calls:
+                temp_lst = list(filter(lambda x: x.direction == nearest_call.direction, self.calls))
+                if temp_lst:
+                    second_nearest_call = min(temp_lst, key=lambda x: abs(x.from_floor - self.current_floor))
 
-                if second_nearest_call and second_nearest_call.people + nearest_call.people <= Elevator.MAX_PEOPLE:
-                    self.people_in_el += second_nearest_call.people
-                    if second_nearest_call.to_floor == nearest_call.to_floor:
-                        pass
-
-                    if nearest_call.to_floor < second_nearest_call.from_floor and nearest_call.to_floor < second_nearest_call.to_floor:
-                        self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.from_floor}')
-                        self.move_floor(self.current_floor, second_nearest_call.from_floor)
-                        self.all_time_waited += Elevator.TIME_WAIT
-                        self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.to_floor}')
-                        self.move_floor(self.current_floor, second_nearest_call.to_floor)
-                        self.all_time_waited += Elevator.TIME_WAIT
-                        self.people_in_el -= second_nearest_call.people
-                        self.calls.remove(second_nearest_call)
-
-                    if nearest_call.to_floor < second_nearest_call.from_floor and nearest_call.to_floor > second_nearest_call.to_floor:
-                        self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.from_floor}')
-                        self.move_floor(self.current_floor, second_nearest_call.from_floor)
-                        self.all_time_waited += Elevator.TIME_WAIT
-                        self.log.append(f'Moving from {self.current_floor} to {nearest_call.to_floor}')
-                        self.move_floor(self.current_floor, second_nearest_call.to_floor)
-                        self.people_in_el -= nearest_call.people
-                        self.all_time_waited += Elevator.TIME_WAIT
-                        self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.to_floor}')
-                        self.people_in_el -= second_nearest_call.people
-                        self.calls.remove(second_nearest_call)
-                        continue
-
-
-                #####################################################
-
-                self.log.append(f'Moving from {self.current_floor} to {nearest_call.to_floor}')
-                self.move_floor(self.current_floor, nearest_call.to_floor)
+            if abs(self.current_floor - nearest_call.from_floor) == 0:
+                self.log.append(f'Receiving call from the same floor... Floor ={self.current_floor}')
+            else:
+                self.log.append(f'Moving from {self.current_floor} to {nearest_call.from_floor}')
+                self.move_floor(self.current_floor, nearest_call.from_floor)
                 self.all_time_waited += Elevator.TIME_WAIT
-                self.people_in_el -= nearest_call.people
-                self.write_log(self.log)
-                self.log = []
 
+            if second_nearest_call and second_nearest_call.people + nearest_call.people <= Elevator.MAX_PEOPLE:
+                self.people_in_el += second_nearest_call.people
+                if second_nearest_call.to_floor == nearest_call.to_floor:
+                    pass
 
+                if nearest_call.to_floor < second_nearest_call.from_floor and nearest_call.to_floor == second_nearest_call.to_floor:
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.from_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.from_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.to_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.to_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.people_in_el -= second_nearest_call.people
+                    self.calls.remove(second_nearest_call)
+                    continue
 
+                if nearest_call.to_floor < second_nearest_call.from_floor and nearest_call.to_floor > second_nearest_call.to_floor:
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.from_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.from_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.to_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.to_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.people_in_el -= second_nearest_call.people
+                    self.calls.remove(second_nearest_call)
+
+                if nearest_call.to_floor < second_nearest_call.from_floor and nearest_call.to_floor < second_nearest_call.to_floor:
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.from_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.from_floor)
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.log.append(f'Moving from {self.current_floor} to {nearest_call.to_floor}')
+                    self.move_floor(self.current_floor, second_nearest_call.to_floor)
+                    self.people_in_el -= nearest_call.people
+                    self.all_time_waited += Elevator.TIME_WAIT
+                    self.log.append(f'Moving from {self.current_floor} to {second_nearest_call.to_floor}')
+                    self.people_in_el -= second_nearest_call.people
+                    self.calls.remove(second_nearest_call)
+                    continue
+
+            #####################################################
+
+            self.log.append(f'Moving from {self.current_floor} to {nearest_call.to_floor}')
+            self.move_floor(self.current_floor, nearest_call.to_floor)
+            self.all_time_waited += Elevator.TIME_WAIT
+            self.people_in_el -= nearest_call.people
+            self.write_log(self.log)
+            self.log = []
 
     def print_statistics(self):
         print(
