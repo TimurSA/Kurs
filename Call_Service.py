@@ -1,7 +1,5 @@
-import random
-import time
+from Time_Spent import measure_time
 from typing import List
-
 from Elevator import Elevator, Call
 
 
@@ -16,24 +14,11 @@ class Call_Manager:
     def add_call(self, calls: List[Call]):
         self.all_calls = calls
 
-    def can_drop_by(self, earliest_call, second_earliest_call):
-        if earliest_call.direction == "UP" == second_earliest_call:
-            if earliest_call.from_floor < second_earliest_call.from_floor:
-                return True
-            else:
-                return False
-        if earliest_call.direction == "DOWN" == second_earliest_call:
-            if earliest_call.from_floor > second_earliest_call.from_floor:
-                return True
-            else:
-                return False
-
+    @measure_time
     def manage_calls_fifo(self):
         while self.all_calls:
 
             earliest_call: Call = min(self.all_calls, key=lambda x: x.time)
-            print("First!!!", end='')
-            print(earliest_call, earliest_call.direction)
             self.all_calls.remove(earliest_call)
             second_earliest_call = None
 
@@ -56,11 +41,10 @@ class Call_Manager:
                             temp_lst))
                 if temp_lst:
                     second_earliest_call = min(temp_lst, key=lambda x: x.time)
-                    print("Second!!!", end='')
-                    print(second_earliest_call, second_earliest_call.direction)
+
 
             if distance1 <= distance2:
-                self.elevator1.move_floor_fifo(earliest_call, second_earliest_call)
+                self.elevator1.move_floor_elevator(earliest_call, second_earliest_call)
                 if second_earliest_call:
                     self.all_calls.remove(second_earliest_call)
 
@@ -68,8 +52,6 @@ class Call_Manager:
                     break
 
                 earliest_call: Call = min(self.all_calls, key=lambda x: x.time)
-                print("First!!!", end='')
-                print(earliest_call, earliest_call.direction)
                 self.all_calls.remove(earliest_call)
                 second_earliest_call = None
                 if self.all_calls:
@@ -88,15 +70,13 @@ class Call_Manager:
                                                    temp_lst))
                     if temp_lst:
                         second_earliest_call = min(temp_lst, key=lambda x: x.time)
-                        print("Second!!!", end='')
-                        print(second_earliest_call, second_earliest_call.direction)
 
-                self.elevator2.move_floor_fifo(earliest_call, second_earliest_call)
+                self.elevator2.move_floor_elevator(earliest_call, second_earliest_call)
                 if second_earliest_call:
                     self.all_calls.remove(second_earliest_call)
 
             else:
-                self.elevator2.move_floor_fifo(earliest_call, second_earliest_call)
+                self.elevator2.move_floor_elevator(earliest_call, second_earliest_call)
                 if second_earliest_call:
                     self.all_calls.remove(second_earliest_call)
 
@@ -104,8 +84,6 @@ class Call_Manager:
                     break
 
                 earliest_call: Call = min(self.all_calls, key=lambda x: x.time)
-                print("First!!!", end='')
-                print(earliest_call, earliest_call.direction)
                 self.all_calls.remove(earliest_call)
                 second_earliest_call = None
                 if self.all_calls:
@@ -124,38 +102,74 @@ class Call_Manager:
                                                    temp_lst))
                     if temp_lst:
                         second_earliest_call = min(temp_lst, key=lambda x: x.time)
-                        print("Second!!!", end='')
-                        print(second_earliest_call, second_earliest_call.direction)
 
-                self.elevator1.move_floor_fifo(earliest_call, second_earliest_call)
+                self.elevator1.move_floor_elevator(earliest_call, second_earliest_call)
                 if second_earliest_call:
                     self.all_calls.remove(second_earliest_call)
 
+    @measure_time
     def manage_calls_nearest(self):
         while self.all_calls:
-            nearest_call: Call = min(self.all_calls, key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
+            nearest_call1 = None
+            nearest_call2 = None
 
-            nearest_call1: Call = min(self.all_calls, key=lambda x: abs(x.from_floor - self.elevator1.current_floor))
-            nearest_call2: Call = min(self.all_calls, key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
-
-            distance1 = abs(self.elevator1.current_floor - nearest_call1.from_floor)
-            distance2 = abs(self.elevator2.current_floor - nearest_call2.from_floor)
-
-            if distance1 <= distance2:
+            if self.all_calls:
+                nearest_call1: Call = min(self.all_calls,
+                                          key=lambda x: abs(x.from_floor - self.elevator1.current_floor))
+            if nearest_call1:
                 self.all_calls.remove(nearest_call1)
-                temp_lst = self.elevator1.move_floor_fifo(nearest_call1, self.all_calls)
-                for i in temp_lst:
-                    self.all_calls.remove(i)
+
+            if self.all_calls:
+                nearest_call2: Call = min(self.all_calls,
+                                          key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
+            if nearest_call2:
                 self.all_calls.remove(nearest_call2)
-                temp_lst = self.elevator2.move_floor_fifo(nearest_call2, self.all_calls)
-                for i in temp_lst:
-                    self.all_calls.remove(i)
-            else:
-                self.all_calls.remove(nearest_call2)
-                temp_lst = self.elevator2.move_floor_fifo(nearest_call2, self.all_calls)
-                for i in temp_lst:
-                    self.all_calls.remove(i)
-                self.all_calls.remove(nearest_call1)
-                temp_lst = self.elevator1.move_floor_fifo(nearest_call1, self.all_calls)
-                for i in temp_lst:
-                    self.all_calls.remove(i)
+
+
+            second_nearest_call1 = None
+            second_nearest_call2 = None
+
+            if self.all_calls:
+                temp_lst = []
+                if nearest_call1.direction == "UP":
+                    temp_lst = list(filter(lambda x: x.direction == "UP", self.all_calls))
+                    if temp_lst:
+                        temp_lst = list(filter(
+                            lambda x: x.from_floor > nearest_call1.from_floor and x.to_floor < nearest_call1.to_floor,
+                            temp_lst))
+                else:
+                    temp_lst = list(filter(lambda x: x.direction == "DOWN", self.all_calls))
+                    if temp_lst:
+                        temp_lst = list(filter(
+                            lambda x: x.from_floor < nearest_call1.from_floor and x.to_floor > nearest_call1.to_floor,
+                            temp_lst))
+                if temp_lst:
+                    second_nearest_call1 = min(temp_lst, key=lambda x: x.time)
+
+            if self.all_calls:
+                temp_lst = []
+                if nearest_call2.direction == "UP":
+                    temp_lst = list(filter(lambda x: x.direction == "UP", self.all_calls))
+                    if temp_lst:
+                        temp_lst = list(filter(
+                            lambda x: x.from_floor > nearest_call2.from_floor and x.to_floor < nearest_call2.to_floor,
+                            temp_lst))
+                else:
+                    temp_lst = list(filter(lambda x: x.direction == "DOWN", self.all_calls))
+                    if temp_lst:
+                        temp_lst = list(filter(
+                            lambda x: x.from_floor < nearest_call2.from_floor and x.to_floor > nearest_call2.to_floor,
+                            temp_lst))
+                if temp_lst:
+                    second_nearest_call2 = min(temp_lst, key=lambda x: x.time)
+
+            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
+            if second_nearest_call1:
+                self.all_calls.remove(second_nearest_call1)
+
+            if not self.all_calls:
+                break
+
+            self.elevator2.move_floor_elevator(nearest_call2, second_nearest_call2)
+            if second_nearest_call2:
+                self.all_calls.remove(second_nearest_call2)
