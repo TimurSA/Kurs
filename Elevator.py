@@ -28,7 +28,12 @@ class Elevator:
     TIME_PER_FLOOR = 5
 
     def __init__(self, *, current_floor: int = 1):
-        self.current_floor = current_floor
+        if current_floor > Elevator.MAX_FLOOR:
+            self.current_floor = Elevator.MAX_FLOOR
+        elif current_floor < 1:
+            self.current_floor = 1
+        else:
+            self.current_floor = current_floor
         self.all_time_waited = 0
         self.all_time_moved = 0
         self.people_in_el = 0
