@@ -171,6 +171,8 @@ class Call_Manager:
                 if temp_lst:
                     second_nearest_call2 = min(temp_lst, key=lambda x: x.time)
 
+
+
             self.elevator2.move_floor_elevator(nearest_call2, second_nearest_call2)
             if second_nearest_call2:
                 self.all_calls.remove(second_nearest_call2)

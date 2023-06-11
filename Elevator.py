@@ -38,6 +38,9 @@ class Elevator:
         self.all_time_moved = 0
         self.people_in_el = 0
         self.all_people_left = 0
+        self.all_people_lifted = 0
+        self.all_time_travel = []
+        self.group_people = []
         self.id = Elevator.number_of_el
         Elevator.number_of_el += 1
 
@@ -88,29 +91,43 @@ class Elevator:
             return
 
         self.people_in_el += earliest_call.people
+        self.all_people_lifted += self.people_in_el
+        self.group_people.append(self.people_in_el)
 
         if abs(self.current_floor - earliest_call.from_floor) == 0:
             self.log.append(f'Receiving call from the same floor... Floor ={self.current_floor}')
         else:
             self.log.append(f'Moving from {self.current_floor} to {earliest_call.from_floor}')
+            ###
+            temp = abs(self.current_floor - earliest_call.from_floor)
+            self.all_time_travel.append(temp)
             self.move_floor(self.current_floor, earliest_call.from_floor)
+
             self.all_time_waited += Elevator.TIME_WAIT
 
         if second_earliest_call:
             if second_earliest_call.people + earliest_call.people <= Elevator.MAX_PEOPLE:
                 self.people_in_el += second_earliest_call.people
+                self.all_people_lifted += second_earliest_call.people
+                self.group_people.append(second_earliest_call.people)
             else:
                 temp = Elevator.MAX_FLOOR - self.people_in_el
                 self.people_in_el = Elevator.MAX_PEOPLE
                 self.all_people_left += second_earliest_call.people - temp
+                self.all_people_lifted += temp
+                self.group_people.append(temp)
 
             if earliest_call.direction == "UP":
 
                 if earliest_call.from_floor < second_earliest_call.from_floor and earliest_call.to_floor == second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.from_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.to_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.to_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.to_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.people_in_el -= self.people_in_el
@@ -120,9 +137,13 @@ class Elevator:
 
                 if earliest_call.from_floor < second_earliest_call.from_floor and earliest_call.to_floor > second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.from_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.to_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.to_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.to_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.people_in_el -= second_earliest_call.people
@@ -130,9 +151,13 @@ class Elevator:
             else:
                 if earliest_call.from_floor > second_earliest_call.from_floor and earliest_call.to_floor == second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.from_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.to_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.to_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.to_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.people_in_el -= self.people_in_el
@@ -142,9 +167,13 @@ class Elevator:
 
                 if earliest_call.from_floor > second_earliest_call.from_floor and earliest_call.to_floor < second_earliest_call.to_floor:
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.from_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.from_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.from_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.log.append(f'Moving from {self.current_floor} to {second_earliest_call.to_floor}')
+                    temp = abs(self.current_floor - second_earliest_call.to_floor)
+                    self.all_time_travel.append(temp)
                     self.move_floor(self.current_floor, second_earliest_call.to_floor)
                     self.all_time_waited += Elevator.TIME_WAIT
                     self.people_in_el -= second_earliest_call.people
@@ -152,6 +181,8 @@ class Elevator:
         #####################################################
 
         self.log.append(f'Moving from {self.current_floor} to {earliest_call.to_floor}')
+        temp = abs(self.current_floor - earliest_call.to_floor)
+        self.all_time_travel.append(temp)
         self.move_floor(self.current_floor, earliest_call.to_floor)
         self.all_time_waited += Elevator.TIME_WAIT
         self.people_in_el -= earliest_call.people
@@ -160,7 +191,11 @@ class Elevator:
 
     def print_statistics(self):
         print(
-            f'Time spent moving: {self.all_time_moved};\nTime spent waiting: {self.all_time_waited};\nRatio: {self.all_time_moved / self.all_time_waited}\nPeople left due to lack of space: {self.all_people_left}')
+            f'Time spent moving: {self.all_time_moved};\nTime spent waiting: {self.all_time_waited};'
+            f'\nRatio: {self.all_time_moved / self.all_time_waited}'
+            f'\nPeople left due to lack of space: {self.all_people_left}'
+            f'\nAvg Waiting time: {(self.all_time_moved + self.all_time_waited) / self.all_people_lifted}'
+            f'\nAvg Traveling time: {sum(self.all_time_travel) / len(self.group_people)}')
 
 
 if __name__ == "__main__":
