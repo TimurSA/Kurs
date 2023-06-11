@@ -4,8 +4,6 @@ from Calls_Generator import generate_call
 from Elevator import Elevator
 
 
-
-
 def generate_passengers():
     peak_hours = [8, 14, 20]
     p_current = 0
@@ -17,4 +15,3 @@ def generate_passengers():
         else:
             p_current = 0.2
         yield np.random.binomial(1, p_current)
-

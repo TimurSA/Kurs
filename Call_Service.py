@@ -1,7 +1,7 @@
 from Time_Spent import measure_time
 from typing import List
 from Elevator import Elevator, Call
-
+import codecs
 
 class Call_Manager:
 
@@ -146,6 +146,14 @@ class Call_Manager:
                 if temp_lst:
                     second_nearest_call1 = min(temp_lst, key=lambda x: x.time)
 
+            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
+            if second_nearest_call1:
+                self.all_calls.remove(second_nearest_call1)
+
+            if not self.all_calls:
+                break
+
+
             if self.all_calls:
                 temp_lst = []
                 if nearest_call2.direction == "UP":
@@ -162,13 +170,6 @@ class Call_Manager:
                             temp_lst))
                 if temp_lst:
                     second_nearest_call2 = min(temp_lst, key=lambda x: x.time)
-
-            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
-            if second_nearest_call1:
-                self.all_calls.remove(second_nearest_call1)
-
-            if not self.all_calls:
-                break
 
             self.elevator2.move_floor_elevator(nearest_call2, second_nearest_call2)
             if second_nearest_call2:
