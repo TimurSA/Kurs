@@ -1,0 +1,27 @@
+1 Moving from 27 to 12
+1 Moving from 12 to 4
+2 Лифт не может отправиться на несуществующий этаж...
+1 Moving from 4 to 85
+1 Moving from 85 to 47
+2 Лифт вызывается с не существующего этажа...
+1 Лифт вызывается с не существующего этажа...
+1 Moving from 47 to 43
+1 Moving from 43 to 14
+2 Moving from 55 to 52
+2 Moving from 52 to 7
+1 Moving from 14 to 18
+1 Moving from 18 to 30
+1 Moving from 30 to 40
+1 Moving from 40 to 72
+2 Лифт не может отправиться на несуществующий этаж...
+1 Moving from 72 to 66
+1 Moving from 66 to 62
+1 Moving from 62 to 46
+1 Moving from 46 to 14
+2 Moving from 7 to 37
+2 Moving from 37 to 43
+1 Лифт не может отправиться на несуществующий этаж...
+2 Moving from 43 to 60
+2 Moving from 60 to 62
+1 Moving from 14 to 97
+1 Moving from 97 to 54

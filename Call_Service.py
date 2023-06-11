@@ -1,7 +1,7 @@
 from Time_Spent import measure_time
 from typing import List
 from Elevator import Elevator, Call
-import codecs
+
 
 class Call_Manager:
 
@@ -41,7 +41,6 @@ class Call_Manager:
                             temp_lst))
                 if temp_lst:
                     second_earliest_call = min(temp_lst, key=lambda x: x.time)
-
 
             if distance1 <= distance2:
                 self.elevator1.move_floor_elevator(earliest_call, second_earliest_call)
@@ -116,15 +115,16 @@ class Call_Manager:
             if self.all_calls:
                 nearest_call1: Call = min(self.all_calls,
                                           key=lambda x: abs(x.from_floor - self.elevator1.current_floor))
+                print("First!!!"+str(nearest_call1))
             if nearest_call1:
                 self.all_calls.remove(nearest_call1)
 
             if self.all_calls:
                 nearest_call2: Call = min(self.all_calls,
                                           key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
+                print("Second!!!"+str(nearest_call2))
             if nearest_call2:
                 self.all_calls.remove(nearest_call2)
-
 
             second_nearest_call1 = None
             second_nearest_call2 = None
@@ -144,15 +144,7 @@ class Call_Manager:
                             lambda x: x.from_floor < nearest_call1.from_floor and x.to_floor > nearest_call1.to_floor,
                             temp_lst))
                 if temp_lst:
-                    second_nearest_call1 = min(temp_lst, key=lambda x: x.time)
-
-            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
-            if second_nearest_call1:
-                self.all_calls.remove(second_nearest_call1)
-
-            if not self.all_calls:
-                break
-
+                    second_nearest_call1 = min(temp_lst, key=lambda x: abs(x.from_floor - self.elevator1.current_floor))
 
             if self.all_calls:
                 temp_lst = []
@@ -169,9 +161,14 @@ class Call_Manager:
                             lambda x: x.from_floor < nearest_call2.from_floor and x.to_floor > nearest_call2.to_floor,
                             temp_lst))
                 if temp_lst:
-                    second_nearest_call2 = min(temp_lst, key=lambda x: x.time)
+                    second_nearest_call2 = min(temp_lst, key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
 
+            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
+            if second_nearest_call1:
+                self.all_calls.remove(second_nearest_call1)
 
+            if not self.all_calls:
+                break
 
             self.elevator2.move_floor_elevator(nearest_call2, second_nearest_call2)
             if second_nearest_call2:
