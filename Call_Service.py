@@ -55,6 +55,13 @@ class Call_Manager:
                     second_earliest_call1 = min(temp_lst,
                                                 key=lambda x: x.time)
 
+            self.elevator1.move_floor_elevator(earliest_call1, second_earliest_call1)
+            if second_earliest_call1:
+                self.all_calls.remove(second_earliest_call1)
+
+            if not self.all_calls:
+                break
+
             if self.all_calls:
                 temp_lst = []
                 if earliest_call2.direction == "UP":
@@ -72,13 +79,6 @@ class Call_Manager:
                 if temp_lst:
                     second_earliest_call2 = min(temp_lst,
                                                 key=lambda x: x.time)
-
-            self.elevator1.move_floor_elevator(earliest_call1, second_earliest_call1)
-            if second_earliest_call1:
-                self.all_calls.remove(second_earliest_call1)
-
-            if not self.all_calls:
-                break
 
             self.elevator2.move_floor_elevator(earliest_call2, second_earliest_call2)
             if second_earliest_call2:
@@ -124,6 +124,13 @@ class Call_Manager:
                 if temp_lst:
                     second_nearest_call1 = min(temp_lst, key=lambda x: abs(x.from_floor - self.elevator1.current_floor))
 
+            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
+            if second_nearest_call1:
+                self.all_calls.remove(second_nearest_call1)
+
+            if not self.all_calls:
+                break
+
             if self.all_calls:
                 temp_lst = []
                 if nearest_call2.direction == "UP":
@@ -140,13 +147,6 @@ class Call_Manager:
                             temp_lst))
                 if temp_lst:
                     second_nearest_call2 = min(temp_lst, key=lambda x: abs(x.from_floor - self.elevator2.current_floor))
-
-            self.elevator1.move_floor_elevator(nearest_call1, second_nearest_call1)
-            if second_nearest_call1:
-                self.all_calls.remove(second_nearest_call1)
-
-            if not self.all_calls:
-                break
 
             self.elevator2.move_floor_elevator(nearest_call2, second_nearest_call2)
             if second_nearest_call2:
