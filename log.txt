@@ -1,0 +1,7 @@
+1 Moving from 17 to 43
+1 Moving from 43 to 63
+1 Moving from 63 to 4
+1 Moving from 4 to 9
+2 Лифт вызывается с не существующего этажа...
+1 Moving from 9 to 51
+1 Moving from 51 to 79
