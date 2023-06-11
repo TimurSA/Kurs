@@ -52,10 +52,9 @@ def start_program():
                 req += 1
                 people = random.randint(1, Elevator.MAX_PEOPLE + 5)
                 all_people += people
-                temp = generate_call(people)
+                lst.append(generate_call(people))
                 with codecs.open("log_req.txt", "a", "utf-8") as file:
-                    file.write(f'{temp}\n')
-                lst.append(temp)
+                    file.write(f'{lst[-1]}\n')
                 if minute == (time_duration * 60) - 1 and lst:
                     app.add_call(lst)
                     app.manage_calls_fifo()
@@ -83,10 +82,9 @@ def start_program():
                 req += 1
                 people = random.randint(1, Elevator.MAX_PEOPLE + 5)
                 all_people += people
-                temp = generate_call(people)
+                lst.append(generate_call(people))
                 with codecs.open("log_req.txt", "a", "utf-8") as file:
-                    file.write(f'{temp}\n')
-                lst.append(temp)
+                    file.write(f'{lst[-1]}\n')
                 if minute == (time_duration * 60) - 1 and lst:
                     app.add_call(lst)
                     app.manage_calls_nearest()
