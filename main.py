@@ -255,6 +255,8 @@ if __name__ == '__main__':
     # Создание окна
     root = Tk()
 
+    root.title("Elevator Statistics")
+
     # Добавление компонентов
     max_floor_label = Label(root, text="Введите количество этажей в здании:")
     max_floor_label.pack()
