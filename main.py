@@ -106,12 +106,12 @@ def error():
         p_in_peak = float(p_in_peak)
     except ValueError:
         messagebox.showerror("Ошибка", f"Введенные данные должны быть числами в диапазоне от 0 до 1 включительно!")
-        peak_hours_entry.delete(0, END)
+        p_in_peak_entry.delete(0, END)
         is_error = True
     else:
         if not isinstance(p_in_peak, float):
             messagebox.showerror("Ошибка", f"Введенные данные должны быть числами в диапазоне от 0 до 1 включительно!")
-            peak_hours_entry.delete(0, END)
+            p_in_peak_entry.delete(0, END)
             is_error = True
         if p_in_peak < 0:
             messagebox.showerror("Ошибка", f"Вероятность не может быть отрицательной!")
